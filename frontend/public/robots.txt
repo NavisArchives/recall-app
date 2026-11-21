@@ -1,0 +1,18 @@
+# recall.family — the display and the family workspace share one origin.
+# The display and the workspace are reached only by an invited family's own
+# session (httpOnly SameSite=Strict cookies); crawling them serves no reader
+# and would just waste the crawl budget on pages that answer the same for
+# everyone: a sign-in form or a redirect. Only the public pages are worth
+# indexing.
+
+User-agent: *
+Allow: /$
+Allow: /pricing$
+Allow: /postcards$
+Allow: /privacy$
+Allow: /terms$
+Allow: /help$
+Allow: /request$
+Disallow: /
+
+Sitemap: https://recall.family/sitemap.xml

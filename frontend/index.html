@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Type ships with the site (src/fonts.css); no font host is contacted. -->
+    <link rel="preload" href="/fonts/roboto-normal-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <title>Recall</title>
+    <meta
+      name="description"
+      content="Recall is a memory archive for someone living with memory loss: their photographs, films and stories on their own screen at home, opened with a number or a card in the post. Built by their family, from any phone."
+    />
+    <!-- No inline <script> here: public/_headers sends script-src 'self',
+         so an inline script is refused in production. -->
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

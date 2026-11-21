@@ -1,0 +1,22 @@
+.DS_Store
+node_modules/
+dist/
+*.log
+*.tsbuildinfo
+.claude/settings.local.json
+
+# Never commit secrets, or archives that may contain them.
+.env
+.env.*
+!.env.example
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.7z
+*.rar
+*.bak
+.claude/worktrees/
+
+# A working password for the shared verification fixture — never committed.
+backend/.scratch-family.json

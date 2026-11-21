@@ -1,0 +1,861 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+ * Recall display theme.
+ *
+ * One immersive treatment, always dark: a full-bleed blurred photo sits behind
+ * every screen, so there is no light/dark toggle. Warm amber is the only
+ * accent. Sizes are tuned for a wall-mounted kiosk read from across a room.
+ */
+
+@layer base {
+  :root {
+    /*
+     * Ink channels (light-mode, M-lighttheme).
+     *
+     * The workspace hard-codes two "inks" hundreds of times — white
+     * `rgba(var(--ink),x)` and a warm cream `rgba(var(--ink-cream),x)` — for text,
+     * hairlines and faint fills laid over the dark ground. Both are light ink on
+     * a dark field. Expressed as an RGB channel here, every one of those literals
+     * becomes `rgba(var(--ink),x)` / `rgba(var(--ink-cream),x)` and inverts in one
+     * place. In the dark theme the channels resolve to exactly their old values,
+     * so nothing — including Margaret's kiosk — renders differently; only the
+     * light theme flips them to warm black.
+     */
+    --ink: 255, 255, 255;
+    --ink-cream: 242, 241, 238;
+
+    --bg-deep: #0a0a0a;
+
+    --fg: #ffffff;
+    --fg-muted: rgba(var(--ink), 0.6);
+    --fg-faint: rgba(var(--ink), 0.45);
+
+    /*
+     * The 20a palette (M106). Taken from the design file rather than
+     * approximated: the ground is a hair warmer than pure black, and the
+     * "white" in that design is a cream that reads softer on it.
+     */
+    --ground: #0b0b0c;
+    --cream: #f2f1ee;
+    --on-cream: #141311;
+    --accent: oklch(0.68 0.13 55);
+    --accent-soft: oklch(0.78 0.1 55);
+    --accent-tint: oklch(0.68 0.13 55 / 0.22);
+
+    --line: rgba(var(--ink), 0.22);
+    --line-soft: rgba(var(--ink), 0.12);
+
+    /*
+     * The workspace's named surfaces (058).
+     *
+     * These were literal hex values written inline across the management
+     * screens, which meant they could not follow a theme: picking Paper left
+     * a dozen near-black panels and one ivory block sitting on a light
+     * ground. Each value below is EXACTLY the literal it replaced, so dark
+     * renders byte-for-byte as it did; styles/workspace-themes.css re-points
+     * them for the three light palettes, and nothing else does.
+     *
+     * Two families. `--panel-*` is a block that sits ON the ground and is
+     * deeper or paler than it; `--on-panel-*` is the lettering that block
+     * carries. A surface and its text always move together.
+     */
+    --panel-pale: #efeae2;
+    --on-panel-pale: #1a1917;
+    --panel-deep: #1a1917;
+    --panel-menu: #161311;
+    --panel-menu-live: #1a1512;
+    --panel-dialog: #171614;
+    --panel-field: #151517;
+    --panel-tray: #19181a;
+    --panel-mission: #221712;
+    --shelf-top: #241c15;
+    --shelf-bottom: #0e0a07;
+    --shelf-live-top: #2a2017;
+    --shelf-live-bottom: #0f0b08;
+    --on-panel-chip: #000;
+    --on-panel-channels: 26, 25, 23;
+    --on-panel-alt-channels: 20, 19, 17;
+    --panel-wash-channels: 0, 0, 0;
+    --live-amber: #e29a68;
+    /* The accent as channels, so a wash can be written rgba(var(--accent-channels),a)
+       and follow the theme. This is the sRGB value of the dark accent, which is
+       what every one of those washes was spelling out by hand. */
+    --accent-channels: 200, 121, 65;
+
+    /* The inverted "you are here" chip — the active tab, a selected filter,
+       a primary button — and the round icon button beside a field. In dark
+       they are a pale chip on a dark ground; in a light theme they become
+       the accent fill, which is what the reference frames draw. Split out
+       from --cream because that token is also the primary TEXT colour, and
+       one value cannot be both ink and a filled pill. */
+    --chip-on: #f2f1ee;
+    --on-chip-on: #141311;
+    --chip-round: #efeae2;
+    --on-chip-round: #000;
+
+    /* A hint: a field's placeholder, a "nothing yet" line. Written by hand as
+       rgba(var(--ink-cream),.55) in a dozen places, which is right on a dark
+       ground and measures 3.8:1 on a light one. Same value here, re-pointed
+       by the light themes. */
+    --fg-hint: rgba(var(--ink-cream), 0.55);
+    --fg-quiet: rgba(var(--ink-cream), 0.5);
+
+    /* The accent written as TEXT on its own tint. It is the accent itself in
+       dark; on a light tint the same hue measures 3.9:1, so the light themes
+       point this at their deeper accent instead. Only for that pairing — the
+       accent as text on the ground or on a white card clears the bar
+       everywhere and keeps using --accent. */
+    --accent-on-tint: var(--accent);
+    --fg-soft: rgba(var(--ink-cream), 0.6);
+    --fg-dim: rgba(var(--ink-cream), 0.45);
+    --fgw-hint: rgba(var(--ink), 0.55);
+    --fgw-quiet: rgba(var(--ink), 0.5);
+    --fgw-soft: rgba(var(--ink), 0.6);
+    --fgw-dim: rgba(var(--ink), 0.45);
+    --fgw-faint: rgba(var(--ink), 0.35);
+
+    /* Lift. A near-black drop shadow is right over a black ground and looks
+       like a bruise on paper, so the depth is named and each palette gives it
+       its own weight. Dark values are the ones these were written with. */
+    --shadow-menu: 0 20px 44px rgba(0, 0, 0, 0.65);
+    --shadow-dialog: 0 30px 90px rgba(0, 0, 0, 0.6);
+    --shadow-pop: 0 16px 40px rgba(0, 0, 0, 0.5);
+    --shadow-pop-deep: 0 16px 40px rgba(0, 0, 0, 0.6);
+    --shadow-tile: 0 18px 30px rgba(0, 0, 0, 0.55);
+    --shadow-sheet: 0 30px 80px rgba(0, 0, 0, 0.5);
+
+    /* The "this is live / active" pill. A pale green on a green wash is right
+       over black and vanishes on paper, so the lettering is named and the
+       light themes take it down to a readable depth. */
+    --live-fill: oklch(0.72 0.16 150 / 0.25);
+    --on-live: oklch(0.85 0.12 150);
+
+    --header-h: 20vh;
+    --radius-card: 24px;
+
+    /*
+     * Tokens the shared UI primitives (button, input, card, dialog) expect,
+     * mapped onto the dark display palette. The management screens use these;
+     * the display screens use the tokens above directly.
+     */
+    --background: #131110;
+    --foreground: #ffffff;
+    --card: rgba(var(--ink), 0.05);
+    --card-foreground: #ffffff;
+    --primary: var(--accent);
+    --primary-foreground: #17120c;
+    --secondary: rgba(var(--ink), 0.09);
+    --secondary-foreground: #ffffff;
+    --muted: rgba(var(--ink), 0.09);
+    --muted-foreground: rgba(var(--ink), 0.62);
+    --accent-foreground: #17120c;
+    --destructive: oklch(0.55 0.19 25);
+    --destructive-foreground: #ffffff;
+    /*
+      Destructive TEXT and borders on dark (frame 12r). The 0.55 token above is
+      built to carry white text on top of it, which makes it too dark to *be*
+      text: measured against a panel it reads 3.38:1, under the 4.5 floor for
+      body copy, and almost every destructive string in the workspace is 13-14px.
+      This one measures 5.84:1 on the same panel. Solid destructive buttons keep
+      the 0.55 fill; anything a person has to read uses this.
+    */
+    --destructive-soft: oklch(0.68 0.16 25);
+
+    /*
+      `remembered` — a contributor who has died (043, frames 12g/12h). The owner
+      chose 12h, the outlined amber: the fill is what tells it apart from the
+      filled amber of `invited`, so this state is a border and not a background.
+      The cream fill from 12g is kept beside it because the two options differ by
+      exactly this one value, and swapping them back is a one-line change.
+    */
+    --remembered-fill: rgba(var(--ink-cream), 0.14);
+    --remembered-line: oklch(0.78 0.1 55 / 0.55);
+    --border: rgba(var(--ink), 0.22);
+    --input: rgba(var(--ink), 0.28);
+    --ring: var(--accent);
+  }
+
+  /*
+   * Light theme (frame 13a — "Overview, light").
+   *
+   * A per-device preference: the Settings toggle writes `data-theme="light"` on
+   * <html> and this block overrides the same tokens the dark theme defines, so
+   * every token-driven surface repaints without touching a component. The two
+   * ink channels flip here too, which carries the hundreds of hard-coded
+   * white/cream literals along with it. The amber accent is deliberately the
+   * same in both themes — only the text ON it flips to white (13a). Margaret's
+   * kiosk is a separate device and stays dark unless set light on that machine.
+   */
+  :root[data-theme="light"] {
+    /*
+     * Apple-store neutrals (apple.com/shop), sampled from the live site: a cool
+     * grey ground with solid white panels and near-black ink, rather than the
+     * warm cream of the first pass. The amber accent stays — it is Recall's
+     * brand, and warm on this cool neutral reads well; only the neutrals here
+     * are Apple's. Text, secondary text and hairlines are its exact values.
+     */
+    --ink: 29, 29, 31;
+    --ink-cream: 29, 29, 31;
+
+    --bg-deep: #f5f5f7;
+
+    --fg: #1d1d1f;
+    /*
+     * On the light ground the alpha ladder does not survive inversion: an alpha
+     * that is faint-but-readable as light ink on dark is invisible as dark ink
+     * on light. Measured on #f5f5f7 (Design): .56 → 4.83 passes; .42 → 3.00
+     * fails. So faint is raised to a readable floor rather than kept decorative.
+     * Floors are per channel — .55 for rgba(0,0,0,x), ~.65 for rgba(--ink,x).
+     */
+    --fg-muted: rgba(0, 0, 0, 0.56);
+    --fg-faint: rgba(0, 0, 0, 0.55);
+
+    --ground: #f5f5f7;
+    --cream: #ffffff;
+    --on-cream: #1d1d1f;
+    --accent-soft: #8f5220;
+    --accent-tint: rgba(200, 121, 65, 0.16);
+
+    --line: rgba(0, 0, 0, 0.16);
+    --line-soft: rgba(0, 0, 0, 0.09);
+
+    --background: #f5f5f7;
+    --foreground: #1d1d1f;
+    /* Solid white panels on the grey ground — the Apple card. */
+    --card: #ffffff;
+    --card-foreground: #1d1d1f;
+    /*
+     * Text on the amber fill is near-black, not white — same as dark. White on
+     * this amber measures ~3:1, under the 4.5 AA floor for normal text; #1d1d1f
+     * on it is ~6:1. (Design §1.) Amber-as-TEXT on white uses --accent-soft.
+     */
+    --primary-foreground: #1d1d1f;
+    --secondary: rgba(0, 0, 0, 0.05);
+    --secondary-foreground: #1d1d1f;
+    --muted: rgba(0, 0, 0, 0.05);
+    --muted-foreground: #6e6e73;
+    --accent-foreground: #1d1d1f;
+    /* Destructive text wants to be darker to read on a light panel. */
+    --destructive-soft: oklch(0.5 0.2 25);
+    --remembered-fill: rgba(0, 0, 0, 0.04);
+    --remembered-line: oklch(0.62 0.13 55 / 0.6);
+    /* Decorative hairline stays faint (≈ Apple's #d2d2d7). Input borders are the
+       one meaningful boundary — the sole edge cue on a field — so --input clears
+       the 3:1 non-text bar (~.42 on this ground) where --border/--line need not. */
+    --border: rgba(0, 0, 0, 0.16);
+    --input: rgba(0, 0, 0, 0.42);
+
+    /* "Live now" green, darkened so it reads on the light ground. */
+    --live: oklch(0.55 0.14 150);
+  }
+
+  /*
+   * The pre-auth front door is always dark, whatever the device's theme (M220).
+   *
+   * The login shell and the profile chooser paint a hard-coded `#0B0B0C` ground
+   * (SignInPage, ChooserShell's GROUND) — an immersive dark surface that the
+   * theme cannot reach. In a light-set device the SURFACE stayed dark while the
+   * INK flipped to near-black, and the field labels vanished into it. This
+   * re-asserts the dark token set on that subtree so surface AND ink agree — and
+   * it protects Margaret's kiosk, whose pairing goes through this same door: a
+   * stored light preference must never put a light front door on her screen.
+   * Owner's call — hard-coded and fool-proof.
+   */
+  .force-dark {
+    --ink: 255, 255, 255;
+    --ink-cream: 242, 241, 238;
+    --bg-deep: #0a0a0a;
+    --fg: #ffffff;
+    --fg-muted: rgba(var(--ink), 0.6);
+    --fg-faint: rgba(var(--ink), 0.45);
+    --ground: #0b0b0c;
+    --cream: #f2f1ee;
+    --on-cream: #141311;
+    --accent-soft: oklch(0.78 0.1 55);
+    --accent-tint: oklch(0.68 0.13 55 / 0.22);
+    --line: rgba(var(--ink), 0.22);
+    --line-soft: rgba(var(--ink), 0.12);
+
+    /* The named surfaces again, at their dark values — see :root above. A
+       subtree that forces dark must force these too, or a themed ancestor
+       would leave its panels behind inside it. */
+    --panel-pale: #efeae2;
+    --on-panel-pale: #1a1917;
+    --panel-deep: #1a1917;
+    --panel-menu: #161311;
+    --panel-menu-live: #1a1512;
+    --panel-dialog: #171614;
+    --panel-field: #151517;
+    --panel-tray: #19181a;
+    --panel-mission: #221712;
+    --shelf-top: #241c15;
+    --shelf-bottom: #0e0a07;
+    --shelf-live-top: #2a2017;
+    --shelf-live-bottom: #0f0b08;
+    --on-panel-chip: #000;
+    --on-panel-channels: 26, 25, 23;
+    --on-panel-alt-channels: 20, 19, 17;
+    --panel-wash-channels: 0, 0, 0;
+    --live-amber: #e29a68;
+    /* The accent as channels, so a wash can be written rgba(var(--accent-channels),a)
+       and follow the theme. This is the sRGB value of the dark accent, which is
+       what every one of those washes was spelling out by hand. */
+    --accent-channels: 200, 121, 65;
+
+    /* The inverted "you are here" chip — the active tab, a selected filter,
+       a primary button — and the round icon button beside a field. In dark
+       they are a pale chip on a dark ground; in a light theme they become
+       the accent fill, which is what the reference frames draw. Split out
+       from --cream because that token is also the primary TEXT colour, and
+       one value cannot be both ink and a filled pill. */
+    --chip-on: #f2f1ee;
+    --on-chip-on: #141311;
+    --chip-round: #efeae2;
+    --on-chip-round: #000;
+
+    /* A hint: a field's placeholder, a "nothing yet" line. Written by hand as
+       rgba(var(--ink-cream),.55) in a dozen places, which is right on a dark
+       ground and measures 3.8:1 on a light one. Same value here, re-pointed
+       by the light themes. */
+    --fg-hint: rgba(var(--ink-cream), 0.55);
+    --fg-quiet: rgba(var(--ink-cream), 0.5);
+
+    /* The accent written as TEXT on its own tint. It is the accent itself in
+       dark; on a light tint the same hue measures 3.9:1, so the light themes
+       point this at their deeper accent instead. Only for that pairing — the
+       accent as text on the ground or on a white card clears the bar
+       everywhere and keeps using --accent. */
+    --accent-on-tint: var(--accent);
+    --fg-soft: rgba(var(--ink-cream), 0.6);
+    --fg-dim: rgba(var(--ink-cream), 0.45);
+    --fgw-hint: rgba(var(--ink), 0.55);
+    --fgw-quiet: rgba(var(--ink), 0.5);
+    --fgw-soft: rgba(var(--ink), 0.6);
+    --fgw-dim: rgba(var(--ink), 0.45);
+    --fgw-faint: rgba(var(--ink), 0.35);
+
+    /* Lift. A near-black drop shadow is right over a black ground and looks
+       like a bruise on paper, so the depth is named and each palette gives it
+       its own weight. Dark values are the ones these were written with. */
+    --shadow-menu: 0 20px 44px rgba(0, 0, 0, 0.65);
+    --shadow-dialog: 0 30px 90px rgba(0, 0, 0, 0.6);
+    --shadow-pop: 0 16px 40px rgba(0, 0, 0, 0.5);
+    --shadow-pop-deep: 0 16px 40px rgba(0, 0, 0, 0.6);
+    --shadow-tile: 0 18px 30px rgba(0, 0, 0, 0.55);
+    --shadow-sheet: 0 30px 80px rgba(0, 0, 0, 0.5);
+
+    /* The "this is live / active" pill. A pale green on a green wash is right
+       over black and vanishes on paper, so the lettering is named and the
+       light themes take it down to a readable depth. */
+    --live-fill: oklch(0.72 0.16 150 / 0.25);
+    --on-live: oklch(0.85 0.12 150);
+    --background: #131110;
+    --foreground: #ffffff;
+    --card: rgba(var(--ink), 0.05);
+    --card-foreground: #ffffff;
+    --primary-foreground: #17120c;
+    --secondary: rgba(var(--ink), 0.09);
+    --secondary-foreground: #ffffff;
+    --muted: rgba(var(--ink), 0.09);
+    --muted-foreground: rgba(var(--ink), 0.62);
+    --accent-foreground: #17120c;
+    --destructive-soft: oklch(0.68 0.16 25);
+    --remembered-fill: rgba(var(--ink-cream), 0.14);
+    --remembered-line: oklch(0.78 0.1 55 / 0.55);
+    --border: rgba(var(--ink), 0.22);
+    --input: rgba(var(--ink), 0.28);
+    --live: oklch(0.72 0.15 150);
+  }
+
+  * {
+    border-color: var(--border);
+  }
+
+  /*
+   * Kiosk display: the page itself never scrolls. It is a fixed screen the
+   * size of the viewport — only individual regions scroll internally.
+   */
+  html,
+  body,
+  #root {
+    height: 100%;
+    overflow: hidden;
+  }
+
+  body {
+    margin: 0;
+    background: var(--bg-deep);
+    color: var(--fg);
+    font-family: Roboto, Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+  }
+}
+
+@layer components {
+  /*
+   * The blurred photo filling the screen behind all content. It follows the
+   * current channel, and each photo as the gallery advances.
+   */
+  .recall-backdrop {
+    position: fixed;
+    inset: -40px;
+    z-index: -2;
+    background-size: cover;
+    background-position: center;
+    filter: blur(30px) saturate(1.15) brightness(0.72);
+    transform: scale(1.06);
+    transition: background-image 0.7s ease;
+  }
+
+  /* Angled scrim keeps the left-hand text column legible over any photo. */
+  .recall-scrim {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background: linear-gradient(
+      100deg,
+      rgba(6, 5, 4, 0.9) 0%,
+      rgba(6, 5, 4, 0.58) 38%,
+      rgba(6, 5, 4, 0.2) 62%,
+      rgba(6, 5, 4, 0.36) 100%
+    );
+  }
+
+  /*
+   * Display type scales with viewport height so the layout holds its
+   * proportions on any screen, matching the 1600x900 design frame.
+   */
+  .t-channel-label {
+    font-family: "Roboto Mono", ui-monospace, monospace;
+    font-size: clamp(11px, 1.78vh, 18px);
+    letter-spacing: 0.14em;
+    color: rgba(var(--ink), 0.55);
+  }
+  .t-channel-number {
+    font: italic 900 clamp(44px, 9.33vh, 96px) / 1 Roboto, sans-serif;
+    letter-spacing: -0.03em;
+  }
+  .t-clock {
+    font: 500 clamp(30px, 6.22vh, 64px) / 1 "Roboto Mono", ui-monospace, monospace;
+    letter-spacing: -0.02em;
+  }
+  .t-date {
+    font-size: clamp(13px, 2vh, 20px);
+    color: rgba(var(--ink), 0.62);
+  }
+  .t-hint {
+    font-family: "Roboto Mono", ui-monospace, monospace;
+    font-size: clamp(12px, 1.89vh, 19px);
+    line-height: 1.3;
+    color: rgba(var(--ink), 0.58);
+  }
+  .t-position {
+    font: 500 clamp(13px, 2.22vh, 22px) / 1 "Roboto Mono", ui-monospace, monospace;
+    color: var(--accent-soft);
+  }
+  .t-eyebrow {
+    font: italic 400 clamp(14px, 2.44vh, 24px) / 1 Roboto, sans-serif;
+    color: rgba(var(--ink), 0.68);
+  }
+  .t-title {
+    font: 700 clamp(34px, 7.11vh, 72px) / 1.02 Roboto, sans-serif;
+    letter-spacing: -0.035em;
+  }
+  .t-subtitle {
+    font: italic 400 clamp(15px, 2.67vh, 26px) / 1 Roboto, sans-serif;
+    color: rgba(var(--ink), 0.65);
+  }
+  .t-body {
+    font: 300 clamp(16px, 2.78vh, 27px) / 1.5 Roboto, sans-serif;
+    color: rgba(var(--ink), 0.88);
+    text-wrap: pretty;
+  }
+  .t-person-name {
+    font: 500 clamp(16px, 2.67vh, 26px) / 1.2 Roboto, sans-serif;
+  }
+  /* Home's welcome — the largest thing on any screen. */
+  .t-hero {
+    font: 700 clamp(38px, 9.33vh, 92px) / 1 Roboto, sans-serif;
+    letter-spacing: -0.035em;
+  }
+  /* A single instruction on the guide: light and unhurried, not shouted. */
+  .t-instruction {
+    font: 300 clamp(22px, 4.67vh, 46px) / 1.35 Roboto, sans-serif;
+  }
+  /* The channel number on a shelf card. */
+  .t-channel-small {
+    font: italic 700 clamp(18px, 2.9vh, 30px) / 1 Roboto, sans-serif;
+    letter-spacing: -0.02em;
+  }
+
+  .t-person-role {
+    font: 400 clamp(14px, 2.22vh, 22px) / 1.2 Roboto, sans-serif;
+    color: rgba(var(--ink), 0.6);
+  }
+
+  .label-caps {
+    font-family: "Roboto Mono", ui-monospace, monospace;
+    font-size: 0.75rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--fg-faint);
+  }
+
+  .hint-mono {
+    font-family: "Roboto Mono", ui-monospace, monospace;
+    font-size: 0.8125rem;
+    letter-spacing: 0.04em;
+    color: var(--fg-faint);
+    line-height: 1.7;
+  }
+
+  /* A visible but quiet scrollbar, for regions that scroll vertically. */
+  .scroll-thin {
+    scrollbar-width: thin;
+    scrollbar-color: var(--line) transparent;
+  }
+  .scroll-thin::-webkit-scrollbar {
+    width: 6px;
+  }
+  .scroll-thin::-webkit-scrollbar-thumb {
+    background: var(--line);
+    border-radius: 3px;
+  }
+  .scroll-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  /* Horizontal thumbnail strip: scrollable but without a visible scrollbar. */
+  .thumb-strip {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .thumb-strip::-webkit-scrollbar {
+    display: none;
+  }
+
+  .surface-card {
+    background: rgba(0, 0, 0, 0.25);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-card);
+    backdrop-filter: blur(6px);
+  }
+
+  /*
+   * Light-theme fixes for the few things a token swap can't reach: a card that
+   * darkens the ground (must lighten instead), and `--live`, which is defined
+   * in this later layer and so out-cascades the base light block. Same layer,
+   * higher specificity — these win in light and are inert in dark.
+   */
+  :root[data-theme="light"] .surface-card {
+    background: #ffffff;
+  }
+  :root[data-theme="light"] {
+    --live: oklch(0.55 0.14 150);
+  }
+
+  /*
+   * Management screens sit on a flat dark panel, not a photo, so their muted
+   * text can afford more contrast than the display's scrim-tuned values.
+   * Scoped to the admin wrapper — the display keeps its own balance.
+   */
+  /*
+   * Text standing ON a photograph (M-none, 058).
+   *
+   * A channel tile's number, its title, the badges over a cover: these sit on
+   * the photo's own dark scrim, and the photo does not change when the
+   * workspace does. So they keep the dark room's ink whatever theme is on —
+   * otherwise picking Paper turns a channel number into near-black lettering
+   * on a near-black scrim.
+   *
+   * Every value below is the :root dark value, so this class is a no-op in
+   * dark and a restoration in a light theme. It is deliberately NOT scoped to
+   * [data-ws-theme]: it has to win inside a themed subtree, and outside one it
+   * changes nothing.
+   */
+  .on-media {
+    --ink: 255, 255, 255;
+    --ink-cream: 242, 241, 238;
+    --fg: #ffffff;
+    --foreground: #ffffff;
+    --fg-muted: rgba(255, 255, 255, 0.7);
+    --fg-faint: rgba(255, 255, 255, 0.55);
+    --fg-hint: rgba(242, 241, 238, 0.55);
+    --fg-quiet: rgba(242, 241, 238, 0.5);
+    --fg-soft: rgba(242, 241, 238, 0.6);
+    --fg-dim: rgba(242, 241, 238, 0.45);
+    --fgw-hint: rgba(255, 255, 255, 0.55);
+    --fgw-quiet: rgba(255, 255, 255, 0.5);
+    --fgw-soft: rgba(255, 255, 255, 0.6);
+    --fgw-dim: rgba(255, 255, 255, 0.45);
+    --accent-on-tint: var(--accent);
+    --cream: #f2f1ee;
+    --on-cream: #141311;
+    --line: rgba(255, 255, 255, 0.22);
+    --line-soft: rgba(255, 255, 255, 0.12);
+    /* #ffffff, not the cream: this is what the subtree inherited from body in
+       the dark room, so the class is a byte-for-byte no-op there. */
+    color: #ffffff;
+  }
+
+  /*
+   * The doors take the same lift as the workspace, for the same reason: flat
+   * ground, no photograph behind the words. Measured on the sign-in page in
+   * dark, the display-tuned faint step put the field labels at exactly 4.5:1,
+   * which is the bar rather than a margin.
+   */
+  .admin-contrast,
+  .door-contrast {
+    --fg-muted: rgba(var(--ink), 0.7);
+    --fg-faint: rgba(var(--ink), 0.55);
+  }
+
+  /*
+   * "The item I'm on." One language for pointing at things, built for a
+   * remote as much as a mouse: resting on an item — by hover, tab or arrow
+   * key — draws the amber ring around it, and pressing confirms. Nothing is
+   * ever *revealed* by pointing; the ring only says where you are.
+   */
+  .pressable {
+    outline: none;
+  }
+  .pressable:hover,
+  .pressable:focus-visible {
+    outline: 1px solid var(--accent);
+    outline-offset: -1px;
+  }
+
+  /*
+   * The back circle standing on a dark scrim — beside the photograph pop-up
+   * (owner, 17 Sep 2026: "if you hover it, it becomes solid").
+   *
+   * IT IS A CSS RULE AND NOT REACT STATE, and that is the whole point of it
+   * being here. The first version held `hover` in a useState and painted the
+   * circle inline; it filled correctly on the way in and then STAYED filled
+   * when the pointer left, because the leave never arrived. Every hover kept
+   * as state has that failure mode — the pointer can leave by routes that
+   * fire no event at all, like the window losing focus or the element being
+   * re-rendered under a still cursor. The browser already knows where the
+   * pointer is; asking it is both shorter and correct.
+   */
+  .back-scrim {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.45);
+    color: rgba(255, 255, 255, 0.92);
+    transition:
+      background-color 0.15s ease,
+      border-color 0.15s ease,
+      color 0.15s ease;
+  }
+  .back-scrim:hover,
+  .back-scrim:focus-visible {
+    background: #ffffff;
+    border-color: #ffffff;
+    color: #14130f;
+  }
+
+  /*
+   * Pointing at a face in the kiosk selector (M80).
+   *
+   * Hovering used to *dim* the card (`hover:opacity-80`), so the face you
+   * reached for got quieter — which reads as the state fading out rather
+   * than lighting up. Now the face gains the page's own halo, and holds it
+   * for exactly as long as the pointer rests on it. No transition and no
+   * keyframe: the charter defers motion, and a kiosk should answer at once
+   * rather than ease into it.
+   *
+   * The glow spreads *outside* the avatar, so it composes with the admin's
+   * hard 4px ring instead of competing with it — the role stays legible
+   * underneath the hover.
+   */
+  .profile-pick .profile-face {
+    display: flex;
+    border-radius: 9999px;
+  }
+  .profile-pick:hover .profile-face,
+  .profile-pick:focus-visible .profile-face {
+    box-shadow: 0 0 44px var(--accent-tint);
+  }
+
+  /* The subject already wears the halo, so hovering brings the rings it
+     has up one step each — never a second glow around the first. */
+  .profile-pick:hover .halo-outer,
+  .profile-pick:focus-visible .halo-outer {
+    border-color: oklch(0.68 0.13 55 / 0.5);
+  }
+  .profile-pick:hover .halo-inner,
+  .profile-pick:focus-visible .halo-inner {
+    border-color: var(--accent);
+    box-shadow: 0 0 90px var(--accent-tint);
+  }
+
+  /* Rings live just outside their card. A container that clips must give
+     them this much room, or "the item I'm on" arrives with a side shaved. */
+  .ring-room {
+    margin: -3px;
+    padding: 3px;
+  }
+
+  /* A list that outgrows its card ends in a fade, not a guillotine.
+
+     A fixed-height bento card clips whatever will not fit, and the cut lands
+     wherever it lands — through the middle of a row, so the last channel on
+     the Insights list read as a rendering fault rather than as "there is
+     more". The mask dissolves the final few pixels instead, which says the
+     same thing the hard edge was trying to say and says it on purpose.
+
+     `mask-image` rather than an overlaid gradient: an overlay has to match
+     the card's own background, so it breaks the moment a card sits on a
+     different surface — and there are cream cards on this page. A mask is
+     about the content, not the colour behind it. */
+  .fade-bottom {
+    -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 28px), transparent 100%);
+    mask-image: linear-gradient(to bottom, #000 calc(100% - 28px), transparent 100%);
+  }
+
+  /* No JS decides when this applies: the list stretches with `flex-1`, so a
+     short one leaves the bottom band empty and the mask falls on nothing.
+     The fade only becomes visible when content actually reaches the edge —
+     which is exactly when it is wanted. */
+
+  /* What her screen is showing right now — green, alive, distinct from
+     every amber "you are here". */
+  :root {
+    --live: oklch(0.72 0.15 150);
+  }
+
+  /*
+   * Mission mode. The row the mission wants you at wears a solid orange
+   * fill and a border that breathes — opacity, never movement — while
+   * everything not part of the mission rests at low opacity.
+   */
+  @keyframes missionPulse {
+    0%,
+    100% {
+      border-color: rgba(200, 121, 65, 0.85);
+      background: rgba(200, 121, 65, 0.22);
+      box-shadow: 0 0 28px rgba(200, 121, 65, 0.3);
+    }
+    50% {
+      border-color: rgba(200, 121, 65, 0.35);
+      background: rgba(200, 121, 65, 0.07);
+      box-shadow: 0 0 6px rgba(200, 121, 65, 0.05);
+    }
+  }
+  .mission-target {
+    border: 2px solid rgba(200, 121, 65, 0.85) !important;
+    background: rgba(200, 121, 65, 0.22);
+    animation: missionPulse 2.4s ease-in-out infinite;
+  }
+  .mission-next {
+    border: 2px solid rgba(200, 121, 65, 0.35) !important;
+    background: rgba(200, 121, 65, 0.08);
+  }
+  .mission-rest {
+    opacity: 0.35;
+  }
+  /*
+   * The veil: mission mode drops a real overlay across everything, and the
+   * elements the mission is about are lifted above it — the target flashes
+   * in the light, the rest of the page waits underneath.
+   */
+  .mission-veil {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    background: rgba(0, 0, 0, 0.6);
+    /*
+     * Decorative, and aria-hidden — so it must never be a pointer target.
+     *
+     * Without this it covered the whole viewport and swallowed every wheel
+     * gesture, which made a mission with more than a few photographs
+     * impossible to finish: the newest rows sat below the fold with no way
+     * to reach them. Worse, `.mission-lift` painted the highlighted rows
+     * above the veil, so scrolling worked when the pointer happened to be
+     * over one and died in the gaps — broken rather than merely disabled.
+     *
+     * Holding the rest of the page still is not this element's job. That
+     * belongs to `.mission-rest`, which carries pointer-events: none where
+     * it means something.
+     */
+    pointer-events: none;
+  }
+  .mission-lift {
+    position: relative;
+    z-index: 60;
+  }
+  body.mission-mode aside,
+  body.mission-mode nav,
+  body.mission-mode header {
+    opacity: 0.4;
+    pointer-events: none;
+  }
+  .admin-contrast .t-hint {
+    color: rgba(var(--ink), 0.72);
+  }
+}
+
+/*
+ * ── The phone's corners and its date fields (owner, 21 Sep 2026) ──────────
+ *
+ * Unlayered on purpose: these must beat Tailwind's utilities, which live in
+ * a layer, and they apply only inside the phone shell (`.mobile-shell`, set
+ * by mobile/MobileShell) so Margaret's display and the desktop workspace
+ * are untouched.
+ *
+ * CORNERS. The desktop's 22–26px panels and the 24px card token read as
+ * generous on a laptop and as inflated on a phone — "looks a bit cheap" was
+ * the owner's word for the shelf, the missions and the tiles. Rather than
+ * editing every page that is shared with the desktop, the phone shell
+ * re-points the token and the handful of arbitrary radii the workspace
+ * pages use, in one place. Pills (`rounded-full`) are not touched.
+ */
+.mobile-shell {
+  --radius-card: 14px;
+}
+.mobile-shell .rounded-\[26px\],
+.mobile-shell .rounded-\[24px\],
+.mobile-shell .rounded-\[22px\],
+.mobile-shell .rounded-\[20px\],
+.mobile-shell .rounded-\[18px\] {
+  border-radius: 14px;
+}
+.mobile-shell .rounded-\[16px\] {
+  border-radius: 12px;
+}
+.mobile-shell .rounded-t-\[28px\] {
+  border-top-left-radius: 18px;
+  border-top-right-radius: 18px;
+}
+
+/*
+ * DATE FIELDS. iOS Safari sizes `<input type="date">` and `type="month"`
+ * from its own intrinsic width and ignores the box it is given, so the DATE
+ * field on the channel editor and BORN in Settings drew past the right edge
+ * of their card. Told to be a block with no minimum width and the box's own
+ * width, it stays inside; the value is then left-aligned like every other
+ * field instead of centred, which is Safari's default for these.
+ */
+input[type="date"],
+input[type="month"] {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+  -webkit-appearance: none;
+  appearance: none;
+}
+input[type="date"]::-webkit-date-and-time-value,
+input[type="month"]::-webkit-date-and-time-value {
+  text-align: left;
+  min-height: 1.3em;
+}

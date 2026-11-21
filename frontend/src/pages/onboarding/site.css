@@ -1,0 +1,601 @@
+/*
+  The public front page — "Recall Website.dc.html" (Claude Design project
+  6d67cd0d, 17 Sep 2026), rebuilt one section at a time.
+
+  Scoped under `.site` so its palette is its own: this page is light by
+  design whatever the device's theme, the way the sign-in door is dark by
+  design (`.force-dark`). Values are the design's, not the workspace's
+  tokens — the ink is a warm near-black, the accent is the red dot, and the
+  dark panels are the display's own black. Nothing here reaches past the
+  landing page.
+*/
+.site {
+  --s-ground: #f7f3eb;
+  --s-ink: 20, 19, 15;           /* #14130F as channels, for rgba() */
+  --s-ink-hex: #14130f;
+  --s-red: #c13b22;
+  --s-red-deep: #a93429;
+  --s-amber: #e29a68;
+  --s-amber-deep: #c87941;
+  --s-dark: #131110;
+  --s-black: #0b0b0c;
+  --s-cream: #efe8d6;
+  --s-card: #f4eedd;
+  --s-paper: #f2f1ee;
+  --s-slot: #e8e2d2;
+  --s-max: 1220px;
+
+  /* The shared wordmark paints its dot with --accent so one component is
+     right in every place it appears. Inside .site that is the red dot the
+     design draws. Nothing else here reads --accent, so this only feeds the
+     mark. */
+  --accent: var(--s-red);
+  --s-gutter: clamp(20px, 5vw, 64px);
+
+  /*
+    THE WORKSPACE'S TOKENS, RESTATED IN THIS PALETTE.
+
+    Everything public is `.site` now, and the pages under it were written
+    against the workspace's names — `text-fg-muted`, `rgba(var(--ink),.22)`,
+    `var(--card)`. Those names resolve to the DARK room unless something
+    redefines them, which is why /terms, /pricing and /postcards were
+    near-black pages wearing the landing page's furniture.
+
+    A custom property resolves where it is DECLARED, not where it is used, so
+    restating the base here re-points every one of those names for the whole
+    subtree at once. That is the one edit; the pages themselves keep the
+    classes they were written with.
+
+    The owner's rule, 17 Sep 2026: "none of the public pages should have a
+    dark theme, there is no theme on the public page, it all has the same
+    look and feel as the landing page."
+  */
+  --ink: var(--s-ink);
+  --ink-cream: var(--s-ink);
+  --ground: var(--s-ground);
+  --background: var(--s-ground);
+  --bg-deep: var(--s-ground);
+  --card: #fbfaf7;
+  --card-foreground: var(--s-ink-hex);
+  --fg: var(--s-ink-hex);
+  --foreground: var(--s-ink-hex);
+  --fg-muted: rgba(20, 19, 15, 0.68);
+  --fg-soft: rgba(20, 19, 15, 0.62);
+  --fg-faint: rgba(20, 19, 15, 0.55);
+  --fg-quiet: rgba(20, 19, 15, 0.5);
+  --fg-dim: rgba(20, 19, 15, 0.45);
+  --fg-hint: rgba(20, 19, 15, 0.4);
+  --line: rgba(20, 19, 15, 0.18);
+  --line-soft: rgba(20, 19, 15, 0.1);
+  --border: rgba(20, 19, 15, 0.18);
+  --input: rgba(20, 19, 15, 0.18);
+  --muted: rgba(20, 19, 15, 0.05);
+  --muted-foreground: rgba(20, 19, 15, 0.6);
+  --cream: var(--s-ink-hex);
+  --on-cream: var(--s-ground);
+  --accent-soft: var(--s-red-deep);
+  --accent-foreground: #f7f3eb;
+  --accent-tint: rgba(193, 59, 34, 0.12);
+  --accent-channels: 193, 59, 34;
+  --chip-on: var(--s-red);
+  --on-chip-on: #f7f3eb;
+  --primary: var(--s-red);
+  --panel-dialog: #fbfaf7;
+  --panel-menu: #fbfaf7;
+  --panel-field: #fbfaf7;
+  --destructive-soft: #a6301b;
+
+  background: var(--s-ground);
+  color: var(--s-ink-hex);
+  font-family: Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100%;
+}
+/*
+  Native controls take the site's red, not the operating system's blue.
+  `accent-color` is the one line that does it for radios, checkboxes and
+  range inputs at once, and it keeps them native — which is what a form
+  control should stay.
+*/
+.site input[type="radio"],
+.site input[type="checkbox"] { accent-color: var(--s-red); }
+.site ::selection { background: rgba(193, 59, 34, 0.18); }
+
+/*
+  The element resets live inside :where(), which costs them all specificity.
+
+  They were plain `.site button { … padding: 0; border: 0; background: none }`
+  — and site.css is not in a cascade layer, while Tailwind's utilities are.
+  Unlayered styles beat layered ones, so this blanket reset silently won
+  against every `px-4`, `border` and `bg-` on any button inside a public page.
+  The language switch came out 89px wide with its padding zeroed, which is
+  what "a big mess" looked like.
+
+  :where() is zero-specificity: a plain button still gets the reset, and the
+  moment anything says otherwise — a utility class or an inline style — that
+  wins instead.
+*/
+:where(.site a) { color: inherit; text-decoration: none; }
+.site a:hover { color: var(--s-red); }
+:where(.site button) { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; text-align: left; }
+
+/* ── measures ─────────────────────────────────────────────────────────── */
+.s-wrap { max-width: var(--s-max); margin: 0 auto; padding-left: var(--s-gutter); padding-right: var(--s-gutter); }
+.s-section { padding-top: 90px; padding-bottom: 90px; }
+.s-rule { border-top: 1px solid rgba(var(--s-ink), 0.12); }
+
+/* ── type ─────────────────────────────────────────────────────────────── */
+.s-eyebrow { font: 400 11px/1 "Roboto Mono", monospace; letter-spacing: 0.24em; color: var(--s-red); }
+.s-h2 { margin: 20px 0 0; font: 600 clamp(30px, 3.4vw, 46px)/1.15 Archivo, sans-serif; letter-spacing: -0.01em; text-wrap: pretty; }
+.s-h2--tight { margin: 0; }
+.s-h2--mid { font-size: clamp(28px, 3.2vw, 42px); line-height: 1.18; }
+.s-lead { margin: 22px 0 0; font: 400 17px/1.65 Roboto, sans-serif; color: rgba(var(--s-ink), 0.68); text-wrap: pretty; }
+.s-lead--16 { font-size: 16px; line-height: 1.6; margin-top: 18px; }
+.s-mono { font: 400 11px/1 "Roboto Mono", monospace; letter-spacing: 0.18em; color: rgba(var(--s-ink), 0.5); }
+.s-label { font: 500 12px/1 "Roboto Mono", monospace; letter-spacing: 0.18em; }
+.s-label--16 { letter-spacing: 0.16em; }
+.s-dot { display: inline-block; width: 0.14em; height: 0.14em; border-radius: 50%; background: var(--s-red); margin-left: 0.1em; vertical-align: baseline; }
+
+/* ── controls ─────────────────────────────────────────────────────────── */
+.site .s-btn { display: inline-block; padding: 15px 28px; border-radius: 999px; font: 500 15px/1 Roboto, sans-serif; white-space: nowrap; }
+.site .s-btn--dark { background: var(--s-ink-hex); color: var(--s-paper); }
+.site .s-btn--dark:hover { color: var(--s-paper); background: #2a2721; }
+.site .s-btn--line { border: 1px solid rgba(var(--s-ink), 0.3); }
+.site .s-btn--light { background: var(--s-paper); color: var(--s-ink-hex); }
+.site .s-btn--light:hover { color: var(--s-ink-hex); background: #ffffff; }
+.site .s-btn--ghost { border: 1px solid rgba(242, 241, 238, 0.35); color: var(--s-paper); }
+.site .s-btn--ghost:hover { color: var(--s-paper); border-color: rgba(242, 241, 238, 0.7); }
+.site .s-btn--sm { padding: 14px 26px; font-size: 14px; }
+/* The red call to action — the hero's "Request an invitation" and the send on
+   the form it leads to are the same button, so they are the same class. */
+.site .s-btn--red { background: var(--s-red); color: var(--s-paper); }
+.site .s-btn--red:hover { color: var(--s-paper); background: var(--s-red-deep); }
+.site .s-btn--block { display: flex; align-items: center; justify-content: center; width: 100%; }
+
+/* ── surfaces ─────────────────────────────────────────────────────────── */
+.s-card { border: 1px solid rgba(var(--s-ink), 0.14); border-radius: 20px; padding: 26px; }
+.s-card--white { background: rgba(255, 255, 255, 0.55); border-color: rgba(var(--s-ink), 0.12); }
+.s-pill { padding: 10px 16px; border: 1px solid rgba(var(--s-ink), 0.3); border-radius: 999px; font: 400 11px/1 "Roboto Mono", monospace; letter-spacing: 0.12em; white-space: nowrap; }
+.s-tag { padding: 8px 15px; border: 1px solid rgba(var(--s-ink), 0.2); border-radius: 999px; font: 400 12px/1 Roboto, sans-serif; color: rgba(var(--s-ink), 0.7); }
+.s-grid { display: grid; gap: 16px; }
+.s-img { display: block; width: 100%; height: 100%; object-fit: cover; }
+
+/* the dark panel (05, 12) keeps its own ink */
+.s-dark { background: var(--s-dark); color: var(--s-paper); }
+.s-dark a { color: inherit; }
+.s-dark a:hover { color: var(--s-amber); }
+
+/* the nav's language pill, in the design's own drawing */
+
+/* the placeholder the design leaves for a real living room */
+.s-slot { display: flex; align-items: center; justify-content: center; text-align: center; padding: 24px; font: 400 12px/1.5 "Roboto Mono", monospace; letter-spacing: 0.08em; color: rgba(var(--s-ink), 0.45); background: var(--s-slot); }
+
+
+/*
+  The pre-auth doors, in the website's light (owner, 17 Sep 2026).
+
+  M220 made these force-dark because a light-set DEVICE flipped the ink and
+  left the surface dark — labels vanished. That reasoning is about surface and
+  ink DISAGREEING, not about dark in particular. `.door` re-states the whole
+  token set for a light ground, hard-coded and theme-independent, so the two
+  agree whatever the device or the person's workspace colour says. Margaret's
+  pairing goes through this door too, and gets a legible one either way.
+*/
+.door {
+  --ink: 20, 19, 15;
+  --ink-cream: 20, 19, 15;
+  --bg-deep: #f7f3eb;
+  --ground: #f7f3eb;
+  --background: #f7f3eb;
+  --fg: #14130f;
+  --foreground: #14130f;
+  --fg-muted: rgba(20, 19, 15, 0.68);
+  --fg-faint: rgba(20, 19, 15, 0.55);
+  --cream: #14130f;
+  --on-cream: #f2f1ee;
+  --card: #ffffff;
+  --card-foreground: #14130f;
+  --line: rgba(20, 19, 15, 0.17);
+  --line-soft: rgba(20, 19, 15, 0.09);
+  --border: rgba(20, 19, 15, 0.17);
+  --input: rgba(20, 19, 15, 0.42);
+  --accent: #c13b22;
+  --accent-soft: #a93429;
+  --accent-tint: rgba(193, 59, 34, 0.14);
+  --accent-foreground: #f2f1ee;
+  --primary-foreground: #f2f1ee;
+  --secondary: rgba(20, 19, 15, 0.05);
+  --secondary-foreground: #14130f;
+  --muted: rgba(20, 19, 15, 0.05);
+  --muted-foreground: rgba(20, 19, 15, 0.62);
+
+  /*
+    Everything DERIVED from the ink channels, restated.
+
+    A custom property's `var()` is resolved on the element that DECLARES it,
+    not on the element that uses it. `--fg-soft: rgba(var(--ink-cream), .6)`
+    lives on :root, so it was computed once against the dark room's cream and
+    inherited into this light door as a fixed cream — which is why "A living
+    archive" was rendering in rgba(242,241,238,.6) on paper and could not be
+    seen. Re-pointing --ink-cream here does nothing for it; the derived value
+    has to be restated. Same rule for every scope that flips the channels:
+    .force-dark, .on-media, the workspace themes and .panel-inverted all
+    carry their own copy.
+  */
+  --fg-hint: rgba(20, 19, 15, 0.64);
+  --fg-quiet: rgba(20, 19, 15, 0.64);
+  --fg-soft: rgba(20, 19, 15, 0.7);
+  --fg-dim: rgba(20, 19, 15, 0.6);
+  --fgw-hint: rgba(20, 19, 15, 0.64);
+  --fgw-quiet: rgba(20, 19, 15, 0.64);
+  --fgw-soft: rgba(20, 19, 15, 0.7);
+  --fgw-dim: rgba(20, 19, 15, 0.6);
+  --fgw-faint: rgba(20, 19, 15, 0.6);
+  --accent-on-tint: #8f2a20;
+  --live-fill: oklch(0.72 0.16 150 / 0.22);
+  --on-live: oklch(0.42 0.13 150);
+  --shadow-menu: 0 18px 40px rgba(20, 19, 15, 0.16);
+  --shadow-dialog: 0 28px 70px rgba(20, 19, 15, 0.18);
+  --shadow-pop: 0 14px 34px rgba(20, 19, 15, 0.14);
+  --shadow-pop-deep: 0 16px 38px rgba(20, 19, 15, 0.16);
+  --shadow-tile: 0 10px 22px rgba(20, 19, 15, 0.12);
+  --shadow-sheet: 0 24px 60px rgba(20, 19, 15, 0.14);
+  --panel-pale: #14130f;
+  --on-panel-pale: #f2f1ee;
+  --panel-deep: rgba(20, 19, 15, 0.05);
+  --panel-menu: #ffffff;
+  --panel-menu-live: rgba(193, 59, 34, 0.14);
+  --panel-dialog: #ffffff;
+  --panel-field: #ffffff;
+  --panel-tray: #ffffff;
+  --panel-mission: rgba(193, 59, 34, 0.14);
+  --on-panel-chip: #f2f1ee;
+  --on-panel-channels: 242, 241, 238;
+  --on-panel-alt-channels: 242, 241, 238;
+  --panel-wash-channels: 242, 241, 238;
+  --chip-on: #c13b22;
+  --on-chip-on: #f2f1ee;
+  --chip-round: #c13b22;
+  --on-chip-round: #f2f1ee;
+  --live-amber: #9a5a22;
+  --accent-channels: 193, 59, 34;
+  --destructive-soft: oklch(0.5 0.2 25);
+  --live: oklch(0.55 0.14 150);
+
+  background: #f7f3eb;
+  color: #14130f;
+}
+
+/* ── the nav, riding the hero's dark ground ───────────────────────────── */
+/*
+  Both of these could have been inline styles on the bar, and were, until the
+  hover states went missing: an inline colour cannot be overridden by a
+  `:hover` rule, so the bar had no feedback at all — and the one rule that did
+  reach it, `.site a:hover`, turns a link the site red, which against the
+  hero's near-black is a change nobody can see. On this bar a link lifts to
+  amber, the same hover the dark panels use (.s-dark).
+*/
+.site .s-nav-link { font: 400 14px/1 Roboto, sans-serif; color: rgba(242, 241, 238, 0.82); }
+.site .s-nav-link:hover { color: var(--s-amber); }
+
+/* the nav's pill is smaller than the kit's smallest; the design's own size */
+.site .s-btn--nav { padding: 10px 20px; font-size: 14px; }
+
+/* ── 02 The problem ───────────────────────────────────────────────────────
+   Two things this section needs that no inline style can express, so they
+   live here. Both are named for the section: the rest of the page builds its
+   columns with `repeat(auto-fit, …)`, and neither of these can.
+*/
+
+/*
+  The head: the sentence wide, the paragraph narrower beside it, in the
+  design's own proportion. It cannot be an auto-fit grid, because auto-fit
+  needs identical tracks and would square the two columns up. Below 760px the
+  right column's 280px floor leaves the heading about 30px of the width, so
+  the pair stacks instead.
+*/
+.s-problem-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(280px, 0.95fr);
+  gap: clamp(24px, 4vw, 64px);
+  align-items: start;
+  margin-top: 20px;
+}
+@media (max-width: 760px) {
+  .s-problem-head { grid-template-columns: minmax(0, 1fr); }
+}
+
+/*
+  The scattered field. Its items sit at percentage positions but are drawn at
+  fixed pixel sizes, so on a phone each print takes roughly three times the
+  share of the width it takes on a laptop, and the right-hand ones run off the
+  page. The field is one composed picture rather than a list of things, so it
+  shrinks whole: the inner layer keeps the drawn geometry at 160% of the
+  width, and the wrapper scales it back to fit. The wrapper's own height
+  follows the same ratio (400 × 0.625 = 250) so the scaled picture leaves no
+  empty band beneath it.
+*/
+.s-problem-field {
+  position: relative;
+  min-height: 400px;
+  margin-top: clamp(40px, 4.5vw, 64px);
+}
+.s-problem-field > .s-problem-field-inner { position: absolute; inset: 0; }
+@media (max-width: 760px) {
+  .s-problem-field { min-height: 250px; overflow: hidden; }
+  .s-problem-field > .s-problem-field-inner {
+    inset: 0 auto auto 0;
+    width: 160%;
+    height: 400px;
+    transform: scale(0.625);
+    transform-origin: top left;
+  }
+}
+
+/* ── 04 What they see: the picture of the display ─────────────────────── */
+/*
+  The mock is a 16/10 set, which is the shape a television is, and inside it
+  the caption column sits beside the photograph.
+
+  Below 720px there is no width left to do both. The design's own numbers —
+  a 20px title and a 13.5px caption in a column roughly a third of a 335px
+  screen — either spill out under the screen's `overflow:hidden` or have to
+  be shrunk to a size nobody can read, and a picture of an unreadable screen
+  is an argument against the product. So on a phone the mock stops holding
+  the television shape: the photograph goes on top, the caption reads under
+  it at the size it has on a desktop, and the set grows as tall as it needs.
+  It is still a picture of the display; it is no longer a picture of the
+  whole set.
+
+  The ratio lives here rather than inline because an inline value would beat
+  the media query that has to remove it.
+*/
+.s-screen { aspect-ratio: 16 / 10; }
+.s-screen-body { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.45fr); }
+
+@media (max-width: 720px) {
+  .s-screen { aspect-ratio: auto; }
+  .s-screen-body { grid-template-columns: minmax(0, 1fr); }
+  /* The photograph leads; without the grid row to stretch into it needs a
+     shape of its own. */
+  .s-screen-still { order: -1; aspect-ratio: 4 / 3; }
+}
+
+/* ── 08 Postcards: the pair of printed cards ──────────────────────────── */
+/*
+  The design lays the written card across the photograph card — one tilted
+  -4deg, the other +3deg — and the overlap only reads while the column is wide
+  enough to hold both. The cards are sized as a percentage of the column, but
+  the type inside them is not and the stamp is a flat 60px, so in a narrow
+  column the written card grows tall and squeezed until it swallows the
+  photograph underneath it.
+
+  Under 560px the pair comes out of the overlap and sits one above the other,
+  tilt kept. 560 rather than this file's usual 720: the column only gets
+  cramped once the written card falls under about 300px wide, which is a
+  one-column layout at roughly 500px of viewport, and above that the overlap
+  is still the design's picture.
+
+  Position, width and tilt live here rather than inline for the same reason as
+  the sections above: an inline value would beat the media query that has to
+  undo it.
+*/
+.s-postcards { position: relative; height: clamp(360px, 36vw, 480px); }
+.s-postcards .s-postcard { position: absolute; box-sizing: border-box; }
+.s-postcards .s-postcard--photo { left: 2%; top: 4%; width: 64%; transform: rotate(-4deg); }
+.s-postcards .s-postcard--note { right: 0; bottom: 2%; width: 66%; transform: rotate(3deg); }
+
+@media (max-width: 560px) {
+  /* 14px of room on every side: a tilted card's corners swing about 7px past
+     its own box, and the section clips its overflow for the blurred ground. */
+  .s-postcards { height: auto; display: grid; gap: 30px; padding: 14px; }
+  .s-postcards .s-postcard { position: static; width: auto; }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   The archive service page's grids ("Recall Archive Service v2.dc.html").
+
+   The design is drawn at one width and has no narrow variant, and its column
+   tracks are stated in minimums — `minmax(300px,.95fr) minmax(0,1.05fr)` is
+   600px of minimum on a 375px phone, which overflows rather than wraps. Each
+   grid is named here so it can collapse to one column, which is the only
+   thing the design does not say and the page cannot ship without.
+   ───────────────────────────────────────────────────────────────────────── */
+.s-svc-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(260px, 0.85fr);
+  gap: clamp(28px, 5vw, 72px);
+  align-items: center;
+}
+.s-svc-two {
+  display: grid;
+  grid-template-columns: minmax(300px, 0.95fr) minmax(0, 1.05fr);
+  gap: clamp(28px, 4vw, 64px);
+  align-items: start;
+}
+.s-svc-flow {
+  display: grid;
+  grid-template-columns: minmax(280px, 1fr) clamp(60px, 6vw, 96px) minmax(280px, 1fr);
+  gap: clamp(12px, 1.6vw, 24px);
+  align-items: center;
+}
+.s-svc-flow--wide {
+  grid-template-columns: minmax(280px, 1fr) clamp(76px, 8vw, 120px) minmax(300px, 1fr);
+}
+.s-svc-price {
+  display: grid;
+  grid-template-columns: minmax(280px, 0.8fr) minmax(0, 1.3fr);
+  align-items: stretch;
+}
+.s-svc-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(280px, 0.9fr);
+  gap: clamp(24px, 4vw, 64px);
+  align-items: start;
+}
+
+/* The two diagrams are absolutely positioned inside a box whose height is a
+   vw clamp, so on a phone they need a floor of their own or the cards land on
+   top of each other. */
+.s-svc-diagram { position: relative; min-height: clamp(360px, 34vw, 440px); }
+.s-svc-pile { position: relative; min-height: clamp(320px, 30vw, 380px); }
+
+@media (max-width: 900px) {
+  .s-svc-hero,
+  .s-svc-two,
+  .s-svc-flow,
+  .s-svc-flow--wide,
+  .s-svc-price,
+  .s-svc-head {
+    grid-template-columns: minmax(0, 1fr);
+    gap: clamp(26px, 6vw, 44px);
+  }
+
+  /* The hinge between two panels points down rather than across once they are
+     stacked. It keeps its words — they are the three verbs the page sells. */
+  .s-svc-flow .s-svc-arrow { transform: rotate(90deg); }
+
+  /* The rule between the price and its list is a vertical one; stacked, it
+     becomes the line above the list. */
+  .s-svc-price > * { padding-left: 0 !important; padding-right: 0 !important; }
+  .s-svc-price > .s-price-list {
+    border-left: 0 !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.14);
+    padding-top: clamp(26px, 6vw, 40px);
+  }
+
+  .s-svc-diagram { min-height: 420px; }
+  .s-svc-pile { min-height: 340px; }
+}
+
+/* The hero is a full screen on a laptop; on a short phone it takes the height
+   it needs instead, so the nav, the questions and the button are never cut. */
+@media (max-width: 760px) {
+  .s-svc-screen { min-height: 0 !important; }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   Two more of the front page's grids ("Recall Website v3.dc.html").
+   ───────────────────────────────────────────────────────────────────────── */
+
+/* The three how-it-works cards already collapse on their own `auto-fit`; the
+   class is the hook for the one thing auto-fit cannot do, which is keep the
+   middle card's routing diagram from being squeezed below its own drawing. */
+.s-how-grid > * { min-width: 0; }
+
+/* Four months, four bars. They sit side by side on a laptop and fold to two
+   rows on a phone — at 375px, four columns leave 78px each and the counts
+   (14, 63, 118, 204) stop being the point. */
+.s-months > * { flex: 1 1 0; }
+@media (max-width: 640px) {
+  .s-months {
+    flex-wrap: wrap;
+    row-gap: clamp(22px, 6vw, 34px);
+  }
+  .s-months > * { flex: 1 1 calc(50% - 16px); }
+}
+
+/* The workspace picture's tab row. Five pills overflow a phone, so below the
+   breakpoint it becomes something you can push sideways rather than something
+   with its last tab sliced off. */
+.s-ws-tabs { overflow-x: auto; flex-wrap: nowrap; scrollbar-width: none; }
+.s-ws-tabs::-webkit-scrollbar { display: none; }
+.s-ws-tabs > * { flex: none; }
+
+/* ─────────────────────────────────────────────────────────────────────────
+   The dark navs on a phone: one hamburger, one full-screen glass menu
+   (components/public/SiteMenu). Below 900px the row of links and the Sign
+   in pill are hidden and the burger takes the language disc's corner slot;
+   the disc itself moves inside the menu. Above it nothing changes.
+   ───────────────────────────────────────────────────────────────────────── */
+
+/* The row of links in the bar (was an inline flex on both navs). */
+.s-nav-desktop { display: flex; align-items: center; gap: 26px; flex-wrap: wrap; }
+
+/* The page's corner, outside the column, where the switch has always stood.
+   Glass takes its tint from the text colour around it, so the dark band says
+   what that is. */
+.s-nav-corner { position: absolute; top: 22px; right: clamp(23px, 1.6vw, 31px); color: #f2f1ee; }
+.s-nav-lang { display: inline-block; }
+/* Scoped to the corner so this outranks .s-menu__disc's own display, which is
+   declared later in this file and would otherwise show the burger everywhere. */
+.s-nav-corner .s-nav-burger { display: none; }
+
+@media (max-width: 900px) {
+  .s-nav-desktop { display: none !important; }
+  .s-nav-lang { display: none; }
+  .s-nav-corner .s-nav-burger { display: inline-flex; }
+}
+
+/* A glass disc, the same drawing the language switch's trigger uses. */
+.s-menu__disc {
+  width: 40px; height: 40px; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  color: currentColor;
+  background: color-mix(in srgb, currentColor 10%, transparent);
+  border: 1px solid color-mix(in srgb, currentColor 26%, transparent);
+  -webkit-backdrop-filter: blur(14px) saturate(1.35);
+  backdrop-filter: blur(14px) saturate(1.35);
+}
+
+/* The overlay lives on <body>, outside .site, so its palette is stated here:
+   the page's paper on the display's black, the red dot for the mark. */
+.s-menu {
+  position: fixed; inset: 0; z-index: 60;
+  display: flex; flex-direction: column;
+  overflow-y: auto; overscroll-behavior: contain;
+  padding: 0 clamp(20px, 5vw, 64px) 40px;
+  color: #f2f1ee;
+  background: rgba(11, 11, 12, 0.78);
+  -webkit-backdrop-filter: blur(22px) saturate(1.3);
+  backdrop-filter: blur(22px) saturate(1.3);
+  --accent: #c13b22;
+  animation: s-menu-in 0.22s ease;
+}
+@keyframes s-menu-in { from { opacity: 0; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .s-menu { animation: none; } }
+
+/* The bar is the nav's height (26 + 40 + 26) so the mark and the disc sit
+   where the page's own did, and the X is exactly where the burger was. */
+.s-menu__bar { display: flex; align-items: center; justify-content: space-between; height: 92px; flex: none; }
+
+.s-menu__links { display: flex; flex-direction: column; margin-top: 8px; border-top: 1px solid rgba(242, 241, 238, 0.14); }
+.s-menu__link {
+  display: block; padding: 22px 0;
+  border-bottom: 1px solid rgba(242, 241, 238, 0.14);
+  font: 400 26px/1.1 Roboto, sans-serif; letter-spacing: -0.01em;
+  color: #f2f1ee; text-decoration: none;
+}
+.s-menu__link:hover { color: #e29a68; }
+/* The page you are on is not a link (the archive service says the same). */
+.s-menu__link[aria-current="page"] { color: #e29a68; }
+
+.s-menu__row {
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  padding: 22px 0; border-bottom: 1px solid rgba(242, 241, 238, 0.14);
+}
+.s-menu__label { font: 400 11px/1 "Roboto Mono", monospace; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(242, 241, 238, 0.6); }
+
+/* The kit's ghost pill, restated because .s-btn is scoped to .site. */
+.s-menu__btn {
+  padding: 14px 26px; border-radius: 999px;
+  border: 1px solid rgba(242, 241, 238, 0.35); background: transparent;
+  font: 500 15px/1 Roboto, sans-serif; color: #f2f1ee; white-space: nowrap;
+}
+.s-menu__btn:hover { border-color: rgba(242, 241, 238, 0.7); }
+
+/* The switch's three discs, laid flat; the one you are reading in wears the
+   accent ring, exactly as the popover's trigger does. */
+.s-menu__langs { display: flex; gap: 8px; }
+.s-menu__lang {
+  width: 40px; height: 40px; border-radius: 50%;
+  font: 400 12px/1 "Roboto Mono", ui-monospace, monospace; letter-spacing: 0.08em; text-transform: uppercase;
+  color: rgba(242, 241, 238, 0.72);
+  background: color-mix(in srgb, currentColor 6%, transparent);
+  border: 1px solid rgba(242, 241, 238, 0.26);
+}
+.s-menu__lang[aria-pressed="true"] {
+  color: #f2f1ee;
+  background: color-mix(in srgb, currentColor 10%, transparent);
+  border: 1.5px solid #c13b22;
+}

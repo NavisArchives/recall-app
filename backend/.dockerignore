@@ -1,0 +1,13 @@
+# The Docker build context — the same allowlist as .gcloudignore, for a build
+# run anywhere else (a laptop, a CI runner). Everything is out unless named,
+# and what is named is exactly what the Dockerfile COPYs. Keep the two files
+# in step: a COPY added to the Dockerfile needs a line in both.
+*
+!Dockerfile
+!package.json
+!package-lock.json
+!tsconfig.json
+!src
+!build
+src/__tests__
+src/**/*.md

@@ -1,0 +1,32 @@
+# Cloudflare Pages response headers for the public site (launch sweep, 16 Sep 2026).
+#
+# The API has carried helmet's full set since M186; the
+# static site sent none of these. Sessions live in SameSite=Strict cookies on
+# the API origin, so a framed copy of the site was never authenticated — what this
+# closes is the first-visit downgrade window and clickjacking hygiene on the
+# workspace. Fonts are self-hosted (src/fonts.css), so no font host is needed.
+#
+# The Content-Security-Policy (29 Sep 2026 review, finding 10). Until then it
+# was frame-ancestors only. Every source below is one the built app uses:
+#   script-src   'self' only. index.html carries no inline script; keep it so.
+#   style-src    'unsafe-inline' because five screens render a <style> element
+#                (owner dashboard and sign-in, payment card, consent panel).
+#                Styles cannot run code; scripts stay strict.
+#   connect-src  the API. Nothing else is fetched.
+#   img-src      the API's media routes, blob: for an upload's preview before
+#                it is sent, data: for the owner's payment QR code.
+#   media-src    the API's films and voices, blob: for a voice recorded or
+#                picked on this device before upload.
+#   font-src     /fonts only.
+# Checked by serving dist/ with these headers and walking the public pages,
+# sign-in and display in a browser with zero violations. A new origin (a map,
+# an embed, an analytics script) needs a line here, or it will be refused.
+
+/*
+  Strict-Transport-Security: max-age=31536000; includeSubDomains
+  X-Frame-Options: DENY
+  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; connect-src 'self' https://REPLACE_ME_API_ORIGIN; img-src 'self' data: blob: https://REPLACE_ME_API_ORIGIN; media-src 'self' blob: https://REPLACE_ME_API_ORIGIN; font-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'
+  Cross-Origin-Opener-Policy: same-origin
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: geolocation=(), payment=(), usb=()

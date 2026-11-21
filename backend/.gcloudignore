@@ -1,0 +1,27 @@
+# What `gcloud run deploy --source .` uploads to Cloud Build — an allowlist.
+#
+# It used to be a denylist (node_modules/, .env, scripts/ …), and a denylist
+# only covers the files someone thought of: backend/.scratch-family.json, the
+# shared fixture's working password, sat beside it and went up with every
+# source deploy (29 Sep 2026 review, finding 17). So now nothing goes unless
+# it is named here, and what is named is exactly what the Dockerfile COPYs:
+#   package.json, package-lock.json  (npm ci, both stages)
+#   tsconfig.json, src/, build/      (npm run build, first stage)
+# A new COPY in the Dockerfile needs a line here and in .dockerignore, or the
+# build fails on a missing file — loudly, which is the direction to fail in.
+#
+# When a .gcloudignore exists gcloud does not read .gitignore, so this file is
+# the whole rule. Check it with: gcloud meta list-files-for-upload
+
+/*
+!/Dockerfile
+!/package.json
+!/package-lock.json
+!/tsconfig.json
+!/src/
+!/build/
+
+# Inside what is let in: the tests (fixtures, mocks, staging credentials'
+# names) and the notes never reach the image.
+/src/__tests__/
+/src/**/*.md

@@ -1,0 +1,327 @@
+/*
+  The workspace's three light palettes — paper (25a), blue (25b), green (25e).
+  Owner, 17 Sep 2026.
+
+  THE RULE THIS FILE EXISTS TO KEEP: dark is untouched. There is no
+  `[data-ws-theme="dark"]` block below, and that is deliberate — dark is the
+  absence of a theme attribute, so a workspace nobody has repainted resolves
+  through exactly the same cascade it did yesterday. Nothing here can reach a
+  render that does not carry the attribute.
+
+  WHERE IT IS ALLOWED TO APPLY: the attribute is set on the workspace shell's
+  own root element (layouts/AdminLayout, mobile/MobileShell, and the owner
+  dashboard), never on <html> or <body> — those are shared with Margaret's
+  display, and her screen is dark unconditionally (CLAUDE.md's display rules,
+  M220's reasoning). The public website is out of scope and carries its own
+  palette (pages/onboarding/site.css).
+
+  HOW IT WORKS: the app is already built on the semantic tokens in index.css
+  (--ground, --card, --fg, --line, --accent…). Rather than re-plumbing every
+  component onto a second token set, each theme below defines its own
+  --ws-* values (the design's table) and then re-points the existing tokens
+  at them. One mapping, in one place; no per-page edits, and removing the
+  attribute restores dark exactly.
+
+  WHAT KEEPS ITS OWN COLOUR IN EVERY THEME:
+  - The printed card (postcard / connected card previews): aged ivory,
+    charcoal and brick red are the object's colours, not the interface's.
+    `.card-object` opts out below.
+  - Status pills that carry meaning (active green, paused grey) — only the
+    amber "pending" wash follows the accent.
+  - Destructive: it stays its own darker, cooler red, so a delete never reads
+    as the paper theme's vermillion accent.
+*/
+
+[data-ws-theme="paper"],
+[data-ws-theme="blue"],
+[data-ws-theme="green"] {
+  /* ── the design's semantic set ──────────────────────────────────────── */
+  --ws-card: #ffffff;
+  --ws-ink: #14130f;
+  --ws-ink-channels: 20, 19, 15;
+  --ws-ink-muted: rgba(20, 19, 15, 0.68);
+  /* 0.55 measured 3.83:1 on the washed cards these sit on — the faint level
+     is still real text (a field's placeholder, a hint), so it clears 4.5. */
+  --ws-ink-faint: rgba(20, 19, 15, 0.62);
+  --fg-hint: rgba(20, 19, 15, 0.64);
+  --fg-quiet: rgba(20, 19, 15, 0.64);
+  --fg-soft: rgba(20, 19, 15, 0.7);
+  --fg-dim: rgba(20, 19, 15, 0.6);
+  --fgw-hint: rgba(20, 19, 15, 0.64);
+  --fgw-quiet: rgba(20, 19, 15, 0.64);
+  --fgw-soft: rgba(20, 19, 15, 0.7);
+  --fgw-dim: rgba(20, 19, 15, 0.6);
+  --fgw-faint: rgba(20, 19, 15, 0.6);
+  --shadow-menu: 0 18px 40px rgba(20, 19, 15, 0.16);
+  --shadow-dialog: 0 28px 70px rgba(20, 19, 15, 0.18);
+  --shadow-pop: 0 14px 34px rgba(20, 19, 15, 0.14);
+  --shadow-pop-deep: 0 16px 38px rgba(20, 19, 15, 0.16);
+  --shadow-tile: 0 10px 22px rgba(20, 19, 15, 0.12);
+  --shadow-sheet: 0 24px 60px rgba(20, 19, 15, 0.14);
+  --live-fill: oklch(0.72 0.16 150 / 0.22);
+  --on-live: oklch(0.42 0.13 150);
+  --ws-line: rgba(20, 19, 15, 0.17);
+  --ws-line-soft: rgba(20, 19, 15, 0.09);
+  --ws-on-plane: #f2f1ee;
+
+  /*
+    The one declaration that is NOT a token: the shell's own text colour.
+
+    `body { color: var(--fg) }` resolves against :root, and every element
+    below inherits that COMPUTED white — re-pointing --fg further down the
+    tree cannot reach text that was already inherited from an ancestor.
+    Without this line the whole workspace renders white-on-paper. It is
+    scoped to the attribute like everything else here, so it stops at the
+    workspace shell and never reaches body, html, or Margaret's display.
+  */
+  color: var(--ws-ink);
+
+  /* ── the existing tokens, re-pointed ───────────────────────────────── */
+  --ink: var(--ws-ink-channels);
+  --ink-cream: var(--ws-ink-channels);
+
+  --bg-deep: var(--ws-ground);
+  --ground: var(--ws-ground);
+  --background: var(--ws-ground);
+
+  --fg: var(--ws-ink);
+  --foreground: var(--ws-ink);
+  --fg-muted: var(--ws-ink-muted);
+  --fg-faint: var(--ws-ink-faint);
+
+  --card: var(--ws-card);
+  --card-foreground: var(--ws-ink);
+  /*
+    --cream carries TWO roles in this codebase, and they must flip together:
+
+      color: var(--cream)                          ~60 sites — the primary text
+      background: var(--cream); color: var(--on-cream)   ~15 sites — the
+                                                   inverted "you are here" pill
+
+    In dark, cream is the near-white ink and the pill is a pale chip on a dark
+    ground. In a light theme both invert: the text becomes ink, and the same
+    pill becomes a near-black chip with paper lettering — which is the emphasis
+    the design already asks for. Mapping --cream to the card surface instead
+    satisfies the pill and renders every one of those sixty labels white on
+    white, so the pair flips, and nothing is left half-turned.
+  */
+  --cream: var(--ws-ink);
+  --on-cream: var(--ws-on-plane);
+
+  --line: var(--ws-line);
+  --line-soft: var(--ws-line-soft);
+  --border: var(--ws-line);
+  /* The input edge is the only boundary a field has, so it clears the 3:1
+     non-text bar rather than sitting at the decorative hairline. */
+  --input: rgba(20, 19, 15, 0.42);
+
+  --accent: var(--ws-accent);
+  --accent-channels: var(--ws-accent-channels);
+  --accent-on-tint: var(--ws-accent-deep);
+  --accent-soft: var(--ws-accent-deep);
+  --accent-tint: var(--ws-accent-tint);
+  /* Text ON the accent fill. Each theme sets this to whichever of near-black
+     or paper actually clears 4.5:1 on its own accent — see the blocks below. */
+  --accent-foreground: var(--ws-on-accent);
+  --primary-foreground: var(--ws-on-accent);
+
+  --secondary: rgba(20, 19, 15, 0.05);
+  --secondary-foreground: var(--ws-ink);
+  --muted: rgba(20, 19, 15, 0.05);
+  --muted-foreground: rgba(20, 19, 15, 0.62);
+
+  /* Its own red in every theme: darker and cooler than any accent here, so a
+     destructive control never reads as the paper theme's vermillion. */
+  --destructive-soft: oklch(0.5 0.2 25);
+
+  --remembered-fill: rgba(20, 19, 15, 0.04);
+  --remembered-line: rgba(20, 19, 15, 0.28);
+  --live: oklch(0.55 0.14 150);
+
+  /*
+    ── the named surfaces (see index.css) ───────────────────────────────
+
+    Two different things are going on here, and they move in opposite
+    directions.
+
+    A block that is PALER than the ground in dark is an inversion — "the card
+    inverted", as the overview's mission inset calls itself. Its job is to be
+    the opposite of the page. So in a light theme it inverts the other way and
+    becomes the deep plane, and the lettering it carries follows it.
+
+    A block that is DEEPER than the ground in dark is just a raised or inset
+    surface. In a light theme that is a white card or a soft wash of ink, not
+    a dark slab — a dropdown that stayed black on paper would look like a hole
+    in the page.
+  */
+
+  /* inverted blocks: pale on dark, deep on light */
+  --panel-pale: var(--ws-plane);
+  --on-panel-pale: var(--ws-on-plane);
+  --on-panel-chip: var(--ws-on-plane);
+  --on-panel-channels: 242, 241, 238;
+  --on-panel-alt-channels: 242, 241, 238;
+  --panel-wash-channels: 242, 241, 238;
+
+  /* raised and inset surfaces: deeper than the ground in dark, lighter here */
+  --panel-deep: rgba(20, 19, 15, 0.05);
+  --panel-menu: var(--ws-card);
+  --panel-menu-live: var(--ws-accent-tint);
+  --panel-dialog: var(--ws-card);
+  --panel-field: var(--ws-card);
+  --panel-tray: var(--ws-card);
+  --panel-mission: var(--ws-accent-tint);
+  --shelf-top: rgba(20, 19, 15, 0.07);
+  --shelf-bottom: rgba(20, 19, 15, 0.02);
+  --shelf-live-top: var(--ws-accent-tint);
+  --shelf-live-bottom: rgba(20, 19, 15, 0.02);
+
+  /* The "live / listening" amber is a signal, so it keeps its meaning but not
+     its exact hue: #e29a68 on white measures about 1.9:1 and would disappear
+     as lettering. This is the same amber walked down to a readable depth. */
+  --live-amber: #9a5a22;
+
+  /*
+    The filled controls (reference frames 25b/25d/25e). The active tab, a
+    selected filter, a primary button and the round mic beside the ask field
+    are the ACCENT here, not the ink plane — a blue workspace's "you are
+    here" is blue, and a near-black pill in a blue page reads as a different
+    system. In dark these are the pale chip they always were.
+  */
+  --chip-on: var(--ws-accent);
+  --on-chip-on: var(--ws-on-accent);
+  --chip-round: var(--ws-accent);
+  --on-chip-round: var(--ws-on-accent);
+}
+
+[data-ws-theme="paper"] {
+  --ws-ground: #f7f3eb;
+  --ws-accent-channels: 193, 59, 34;
+  --ws-accent: #c13b22;
+  /* #a93429 measured 4.17:1 on this theme's own accent tint, so every
+     small pill drawn in it sat just under the 4.5 bar. This is the same
+     vermillion two steps deeper: 5.3:1 on the tint, 8.3:1 on white. */
+  --ws-accent-deep: #8f2a20;
+  --ws-accent-tint: rgba(193, 59, 34, 0.14);
+  /* The deep panel is the accent's own darkest member, the way blue's is
+     #1e3a66 and green's #24463a — a generic near-black belonged to no
+     palette and made the missions panel look borrowed from the dark room. */
+  --ws-plane: #6b1f1a;
+  /* Paper on this vermillion measures ~5.2:1; near-black on it does not. */
+  --ws-on-accent: #f2f1ee;
+}
+
+[data-ws-theme="blue"] {
+  --ws-ground: #ecf1f7;
+  --ws-accent-channels: 46, 95, 192;
+  --ws-accent: #2e5fc0;
+  --ws-accent-deep: #24478f;
+  --ws-accent-tint: rgba(46, 95, 192, 0.14);
+  --ws-plane: #1e3a66;
+  --ws-on-accent: #f2f1ee;
+}
+
+[data-ws-theme="green"] {
+  --ws-ground: #edf2ec;
+  --ws-accent-channels: 61, 122, 84;
+  --ws-accent: #3d7a54;
+  --ws-accent-deep: #2c5c3f;
+  --ws-accent-tint: rgba(61, 122, 84, 0.14);
+  --ws-plane: #24463a;
+  --ws-on-accent: #f2f1ee;
+}
+
+/*
+  The deep feature panel — exactly two uses, per the design: the one dark
+  block a page may carry (the missions panel), and primary buttons. Never a
+  sidebar, never a header. Components opt in by class rather than by guessing
+  from a token.
+*/
+[data-ws-theme="paper"] .ws-plane,
+[data-ws-theme="blue"] .ws-plane,
+[data-ws-theme="green"] .ws-plane {
+  background: var(--ws-plane);
+  color: var(--ws-on-plane);
+}
+
+/*
+  A surface that inverts — the mission inset, the nudge, the invite card, a
+  finished mission — is DEEP in a light theme. Everything standing on it has
+  to turn over with it, and inheriting a colour is not enough: a child that
+  names --fg-muted, or writes its own near-black rgba, keeps the page's ink
+  and vanishes into the panel. That is what put dark grey body copy on the
+  green invite card.
+
+  So the whole ink set is re-pointed for the subtree. `.panel-inverted` is
+  the marker, and it is inert in dark for the usual reason — no theme
+  attribute, no rule.
+*/
+[data-ws-theme] .panel-inverted {
+  --ink: 242, 241, 238;
+  --ink-cream: 242, 241, 238;
+  --fg: var(--ws-on-plane);
+  --foreground: var(--ws-on-plane);
+  --fg-muted: rgba(242, 241, 238, 0.74);
+  --fg-faint: rgba(242, 241, 238, 0.58);
+  --line: rgba(242, 241, 238, 0.2);
+  --line-soft: rgba(242, 241, 238, 0.12);
+  --border: rgba(242, 241, 238, 0.2);
+  --on-panel-channels: 242, 241, 238;
+  --on-panel-alt-channels: 242, 241, 238;
+  --panel-wash-channels: 242, 241, 238;
+  /* --cream and --on-cream are deliberately NOT re-pointed here. The panel
+     sets its own `color: var(--on-cream)` inline, and an element resolves a
+     custom property against its OWN values — so overriding the pair on this
+     element painted the heading in the panel's own colour, on the panel. The
+     theme's mapping (cream = ink, on-cream = paper) is already right inside a
+     deep panel: the heading comes out paper, and the pale button that sits on
+     it comes out paper with ink lettering. */
+  --secondary: rgba(242, 241, 238, 0.1);
+  --secondary-foreground: var(--ws-on-plane);
+  --muted: rgba(242, 241, 238, 0.1);
+  --muted-foreground: rgba(242, 241, 238, 0.7);
+  --fg-hint: rgba(242, 241, 238, 0.72);
+  --fg-quiet: rgba(242, 241, 238, 0.72);
+  --fg-soft: rgba(242, 241, 238, 0.78);
+  --fg-dim: rgba(242, 241, 238, 0.62);
+  --fgw-hint: rgba(242, 241, 238, 0.72);
+  --fgw-quiet: rgba(242, 241, 238, 0.72);
+  --fgw-soft: rgba(242, 241, 238, 0.78);
+  --fgw-dim: rgba(242, 241, 238, 0.62);
+  --fgw-faint: rgba(242, 241, 238, 0.55);
+  --accent-on-tint: var(--ws-on-plane);
+  --on-live: oklch(0.85 0.12 150);
+  color: var(--ws-on-plane);
+}
+
+/*
+  The printed object keeps its own palette in every theme (guardrail 4).
+  `PostcardPreview` and the card tiles mark their surfaces with this class;
+  inside it the tokens fall back to the object's own ivory and charcoal, so a
+  preview of a printed card looks like the card, not like the workspace.
+*/
+[data-ws-theme] .card-object {
+  --ink: 20, 19, 15;
+  --ink-cream: 242, 241, 238;
+  --fg: #14130f;
+  --fg-muted: rgba(20, 19, 15, 0.68);
+  --fg-faint: rgba(20, 19, 15, 0.5);
+  --cream: #efe8d6;
+  --on-cream: #14130f;
+  --card: #efe8d6;
+  --line: rgba(20, 19, 15, 0.2);
+  --line-soft: rgba(20, 19, 15, 0.12);
+  --accent: #c13b22;
+  --accent-soft: #a93429;
+  --accent-channels: 193, 59, 34;
+}
+
+/*
+  No focus rule here on purpose.
+
+  index.css already draws `:focus-visible` with `var(--accent)`, which follows
+  the theme by itself, and `.pressable` draws its own inset ring. A third rule
+  at a different offset stacked all three: an open dropdown wore a 2px accent
+  border, an inset hairline AND an offset ring, which is what made the select
+  read as an error box rather than a menu.
+*/
